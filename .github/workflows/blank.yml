@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>كيبورد عربي · English · مسند</title>
+<style>
+:root{--bg:#f6f4ef;--panel:#fff;--key:#fff;--key2:#e3ded3;--tx:#1f1d1a;--mut:#7a746a;--ac:#9a5b1e;--bd:#d8d2c6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1a18;--panel:#262421;--key:#34312d;--key2:#46423c;--tx:#f1ede4;--mut:#a39c8f;--ac:#e0a35f;--bd:#444039}}
+:root[data-theme="dark"]{--bg:#1b1a18;--panel:#262421;--key:#34312d;--key2:#46423c;--tx:#f1ede4;--mut:#a39c8f;--ac:#e0a35f;--bd:#444039}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;display:flex;flex-direction:column}
+.top{padding:12px 12px 6px;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0}
+textarea{flex:1;min-height:90px;width:100%;resize:none;border:1px solid var(--bd);border-radius:14px;background:var(--panel);color:var(--tx);font-size:22px;padding:12px;font-family:"Noto Sans South Arabian",system-ui,sans-serif;line-height:1.6}
+.bar{display:flex;gap:6px;flex-wrap:wrap}
+.bar button{flex:1;border:1px solid var(--bd);background:var(--panel);color:var(--tx);border-radius:10px;padding:9px 6px;font-size:14px}
+.bar button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+.kb{background:var(--panel);border-top:1px solid var(--bd);padding:8px 5px 10px}
+.tabs{display:flex;gap:6px;margin:0 3px 8px}
+.tabs button{flex:1;padding:9px;border-radius:10px;border:1px solid var(--bd);background:var(--key);color:var(--tx);font-size:15px}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.row{display:flex;gap:4px;margin-bottom:5px;direction:ltr;justify-content:center}
+.row.rtl{direction:rtl}.k{flex:1;min-width:0;height:46px;border:0;border-radius:8px;background:var(--key);color:var(--tx);font-size:20px;box-shadow:0 1px 0 var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;padding:0}
+.k:active{background:var(--key2)}
+.k.w{flex:1.5;background:var(--key2);font-size:15px}
+.k.sp{flex:5;font-size:14px;color:var(--mut)}
+.k small{font-size:10px;color:var(--mut);margin-top:3px}
+.k .g{font-family:"Noto Sans South Arabian",system-ui,sans-serif;font-size:22px}
+.note{font-size:11px;color:var(--mut);text-align:center;margin:2px 0 0}
+</style>
+</head>
+<body>
+<div class="top">
+  <textarea id="t" inputmode="none" placeholder="اكتب هنا..."></textarea>
+  <div class="bar">
+    <button class="pri" id="copy">نسخ</button>
+    <button id="conv">حوّل العربي إلى مسند</button>
+    <button id="clr">مسح</button>
+  </div>
+</div>
+<div class="kb">
+  <div class="tabs">
+    <button data-l="ar" class="on">عربي</button>
+    <button data-l="en">English</button>
+    <button data-l="ms">مسند &#x10A6C;&#x10A67;</button>
+  </div>
+  <div id="keys"></div>
+  <p class="note" id="note"></p>
+</div>
+<script>
+var T=document.getElementById('t'),K=document.getElementById('keys'),lang='ar',shift=false;
+var MS=[["ا","\u{10A71}"],["ب","\u{10A68}"],["ت","\u{10A69}"],["ث","\u{10A7B}"],["ج","\u{10A74}"],["ح","\u{10A62}"],["خ","\u{10A6D}"],["د","\u{10A75}"],["ذ","\u{10A79}"],["ر","\u{10A67}"],["ز","\u{10A78}"],["س","\u{10A66}"],["ش","\u{10A6F}"],["ص","\u{10A6E}"],["ض","\u{10A73}"],["ط","\u{10A77}"],["ظ","\u{10A7C}"],["ع","\u{10A72}"],["غ","\u{10A76}"],["ف","\u{10A70}"],["ق","\u{10A64}"],["ك","\u{10A6B}"],["ل","\u{10A61}"],["م","\u{10A63}"],["ن","\u{10A6C}"],["ه","\u{10A60}"],["و","\u{10A65}"],["ي","\u{10A7A}"],["·","\u{10A6A}"]];
+var EXTRA={"ة":"\u{10A69}","ى":"\u{10A7A}","ء":"\u{10A71}","أ":"\u{10A71}","إ":"\u{10A71}","آ":"\u{10A71}","ئ":"\u{10A7A}","ؤ":"\u{10A65}"};
+var MAP={};MS.forEach(function(p){MAP[p[0]]=p[1]});for(var e in EXTRA)MAP[e]=EXTRA[e];
+var AR=[["ض","ص","ث","ق","ف","غ","ع","ه","خ","ح","ج","د"],["ش","س","ي","ب","ل","ا","ت","ن","م","ك","ط"],["ئ","ء","ؤ","ر","لا","ى","ة","و","ز","ظ","ذ"]];var EN=[["q","w","e","r","t","y","u","i","o","p"],["a","s","d","f","g","h","j","k","l"],["z","x","c","v","b","n","m"]];
+var NUM=["1","2","3","4","5","6","7","8","9","0"];
+function ins(s){var a=T.selectionStart||0,b=T.selectionEnd||0;T.value=T.value.slice(0,a)+s+T.value.slice(b);T.selectionStart=T.selectionEnd=a+s.length;T.focus()}
+function del(){var a=T.selectionStart||0,b=T.selectionEnd||0;if(a!==b){T.value=T.value.slice(0,a)+T.value.slice(b);T.selectionStart=T.selectionEnd=a}else if(a>0){var cp=T.value.slice(Math.max(0,a-2),a),n=/[\uD800-\uDFFF]{2}$/.test(cp)?2:1;T.value=T.value.slice(0,a-n)+T.value.slice(a);T.selectionStart=T.selectionEnd=a-n}T.focus()}
+function key(l,v,cls,fn,sub){var b=document.createElement('button');b.className='k'+(cls?' '+cls:'');b.type='button';b.innerHTML=l+(sub?'<small>'+sub+'</small>':'');b.addEventListener('pointerdown',function(ev){ev.preventDefault()});b.addEventListener('click',fn||function(){ins(v);if(shift&&lang==='en'){shift=false;draw()}});return b}
+function row(arr,rtl){var r=document.createElement('div');r.className='row'+(rtl?' rtl':'');arr.forEach(function(x){r.appendChild(x)});K.appendChild(r)}
+function draw(){K.innerHTML='';var n=document.getElementById('note');
+ if(lang==='ar'){n.textContent='';row(NUM.map(function(c){return key(c,c)}),false);AR.forEach(function(r){row(r.map(function(c){return key(c,c)}),true)});}
+ else if(lang==='en'){n.textContent='';row(NUM.map(function(c){return key(c,c)}),false);EN.forEach(function(r,i){var ks=r.map(function(c){var v=shift?c.toUpperCase():c;return key(v,v)});if(i===2)ks.unshift(key(shift?'⇧':'⇪',0,'w',function(){shift=!shift;draw()}));row(ks,false)});}
+ else{n.textContent='كل حرف مسند يظهر تحته مقابله بالعربي';var per=8,rows=[];for(var i=0;i<MS.length;i+=per)rows.push(MS.slice(i,i+per));rows.forEach(function(r){row(r.map(function(p){return key('<span class="g">'+p[1]+'</span>',p[1],'',null,p[0])}),true)});}
+ var f=[];f.push(key('⌫',0,'w',del));if(lang==='en'){f.push(key(',',','));f.push(key('space',' ','sp'));f.push(key('.','.'))}else{f.push(key('،','،'));f.push(key('مسافة',' ','sp'));f.push(key('.','.'))}f.push(key('↵',0,'w',function(){ins('\n')}));row(f,false);
+}document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){lang=b.dataset.l;shift=false;document.querySelectorAll('.tabs button').forEach(function(x){x.classList.toggle('on',x===b)});draw()})});
+document.getElementById('copy').addEventListener('click',function(){var b=this;T.select();try{navigator.clipboard.writeText(T.value)}catch(e){document.execCommand('copy')}b.textContent='تم النسخ ✓';setTimeout(function(){b.textContent='نسخ'},1200)});
+document.getElementById('clr').addEventListener('click',function(){T.value=''});
+document.getElementById('conv').addEventListener('click',function(){T.value=Array.from(T.value).map(function(c){return MAP[c]||c}).join('')});
+draw();
+</script>
+</body>
+</html>
